@@ -4,6 +4,15 @@ local g = getgenv()
 g.ACXHeartbeat = (g.ACXHeartbeat or 0) + 1 -- re-running replaces the old loop
 local me = g.ACXHeartbeat
 if not isfolder("AnimeChampionsX") then makefolder("AnimeChampionsX") end
+-- Also log the devs' global announcements (Network.BroadcastShow) to broadcasts.txt: chat history is not kept anywhere.
+task.spawn(pcall, function()
+	if g.ACXBroadcastConn then g.ACXBroadcastConn:Disconnect() end
+	local Network = require(game:GetService("ReplicatedStorage"):WaitForChild("Network", 30))
+	local me = game:GetService("Players").LocalPlayer.Name
+	g.ACXBroadcastConn = Network.BroadcastShow.OnClientEvent:Connect(function(text, kind)
+		pcall(appendfile, "AnimeChampionsX/broadcasts.txt", ("%s | %s | %s | %s\n"):format(os.date("%H:%M:%S"), me, tostring(kind), tostring(text)))
+	end)
+end)
 local name, lastName = "?", 0
 task.spawn(function()
 	while g.ACXHeartbeat == me do
