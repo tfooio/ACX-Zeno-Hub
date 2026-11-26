@@ -1,6 +1,6 @@
 # Zeno Hub (Anime Champions X)
 
-Private Roblox script hub for Anime Champions X. Luau + Obsidian UI. Repo: tfooio/ACX-Zeno-Hub (private).
+Roblox script hub for Anime Champions X. Luau + Obsidian UI. Repo: tfooio/ACX-Zeno-Hub (public for now so friends can loadstring it; main must always load).
 Single file `acx.luau`; `tools/sync.ps1` mirrors it into the executor workspace (autoexec loads that copy).
 
 ## Working rules
