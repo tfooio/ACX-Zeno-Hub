@@ -1,0 +1,8 @@
+*.local.*
+secrets*
+webhook*.txt
+Config/
+Logs/
+.claude/
+# obsolete lobby script, kept on disk only
+chest_hunter.luau
