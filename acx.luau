@@ -43,6 +43,32 @@ local function hrp()
 	return ch and ch:FindFirstChild("HumanoidRootPart")
 end
 
+local function tp(cf)
+	local h = hrp()
+	if not h then return false end
+	h.CFrame = cf
+	h.AssemblyLinearVelocity = Vector3.zero
+	return true
+end
+
+-- Target priority over any candidate list: { { hp = number, pos = Vector3, ref = any }, ... }. Ties go to the earlier entry.
+local PRIORITIES = { "Nearest", "Lowest HP", "Highest HP" }
+local function pickTarget(list, mode, from)
+	local best, bestKey
+	for _, t in list do
+		local key = mode == "Lowest HP" and t.hp or mode == "Highest HP" and -t.hp or (t.pos - from).Magnitude
+		if not bestKey or key < bestKey then best, bestKey = t, key end
+	end
+	return best
+end
+do -- self-check, runs on every load
+	local L = { { hp = 50, pos = Vector3.new(10, 0, 0) }, { hp = 10, pos = Vector3.new(30, 0, 0) }, { hp = 90, pos = Vector3.new(20, 0, 0) } }
+	assert(pickTarget(L, "Nearest", Vector3.zero).hp == 50)
+	assert(pickTarget(L, "Lowest HP", Vector3.zero).hp == 10)
+	assert(pickTarget(L, "Highest HP", Vector3.zero).hp == 90)
+	assert(pickTarget({}, "Nearest", Vector3.zero) == nil)
+end
+
 local Window = Library:CreateWindow({
 	Title = "Zeno Hub", -- the sidebar is narrow; a longer title gets cut
 	Footer = "per-account config: autosaved",
@@ -61,6 +87,7 @@ local Tabs = {
 
 -- ===== FEATURES (filled in after remotes are confirmed) =====
 local main = Tabs.Main:AddLeftGroupbox("Farm", "swords")
+main:AddDropdown("Priority", { Text = "Target Priority", Values = PRIORITIES, Default = 1 })
 local info = Tabs.Main:AddRightGroupbox("Status", "info")
 local status = info:AddLabel("Loaded. Waiting for features.", true)
 
