@@ -4,3 +4,4 @@ $dst = Join-Path $env:LOCALAPPDATA "Potassium\workspace\AnimeChampionsX"
 New-Item -ItemType Directory -Force $dst | Out-Null
 Copy-Item (Join-Path $src "acx.luau") $dst -Force
 Write-Output "synced to $dst"
+Copy-Item (Join-Path $src "tools\heartbeat.luau") $dst -Force
