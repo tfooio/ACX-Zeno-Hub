@@ -49,7 +49,8 @@ for _, d in LP.PlayerGui:GetDescendants() do
 	if n >= 80 then break end
 	if d:IsA("TextLabel") or d:IsA("TextButton") then
 		local t = d.Text:lower()
-		if t:find("auto") or t:find("quest") or t:find("raid") or t:find("world") or t:find("equip") or t:find("setting") then
+		if t:find("auto") or t:find("quest") or t:find("raid") or t:find("world") or t:find("equip") or t:find("setting")
+			or t:find("claim") or t:find("trade") or t:find("shard") or t:find("code") or t:find("redeem") or t:find("free") or t:find("store") then
 			n += 1
 			add((d:GetFullName():gsub("^Players%." .. LP.Name .. "%.PlayerGui%.", "")), "|", d.Text)
 		end
