@@ -157,7 +157,8 @@ local function farmStep()
 	end
 	local list, seen = {}, {}
 	for i in g.world:query(g.C.CharacterModel):with(g.C.Targetable, g.C.Team):without(g.C.Sealed) do
-		if g.TU.areEntitiesHostile(me, i) then
+		-- never pull the world boss by accident: it is a separate challenge and wipes an under-levelled team
+		if g.TU.areEntitiesHostile(me, i) and not g.world:has(i, g.C.OverworldBoss) and not g.world:has(i, g.C.BossFight) then
 			local pack = g.Packs.packOf(i)
 			if pack and not seen[pack] and g.Packs.isLivePack(pack) then
 				seen[pack] = true

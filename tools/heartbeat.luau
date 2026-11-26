@@ -11,9 +11,18 @@ g.ACXEventConns = {}
 task.spawn(pcall, function()
 	local RS, HS = game:GetService("ReplicatedStorage"), game:GetService("HttpService")
 	local who = game:GetService("Players").LocalPlayer.Name
-	local NOISY = { ShardSpawn = 1, ShardRemove = 1, AlienPunch = 1, AfkCover = 1, AfkCovered = 1, AfkUncover = 1, AfkDebugArrive = 1, WaterFallSplash = 1, WaterFallSplashShow = 1 }
+	-- only remotes that can announce drops/events/rewards; combat and replication remotes fire many times a second
+	local WANTED = { "Broadcast", "Reward", "Gift", "Code", "Announce", "Event", "Drop", "Quest", "Banner", "Store", "Season", "Daily", "Milestone", "Merchant", "Countdown", "Lobby_Notice", "Summon" }
+	local function wanted(name)
+		for _, w in WANTED do if name:find(w) then return true end end
+		return false
+	end
+	local written = 0
 	local function log(...)
-		pcall(appendfile, "AnimeChampionsX/events.txt", ("%s | %s | %s\n"):format(os.date("%H:%M:%S"), who, table.concat({ ... }, " ")))
+		if written > 500000 then return end -- hard cap per run so the log can never fill the disk
+		local line = ("%s | %s | %s\n"):format(os.date("%H:%M:%S"), who, table.concat({ ... }, " "))
+		written += #line
+		pcall(appendfile, "AnimeChampionsX/events.txt", line)
 	end
 	local function show(v)
 		local ok, js = pcall(HS.JSONEncode, HS, v)
@@ -21,7 +30,7 @@ task.spawn(pcall, function()
 	end
 	local function hold(c) table.insert(g.ACXEventConns, c) end
 	local function hookRemote(r)
-		if r:IsA("RemoteEvent") and not NOISY[r.Name] and not r.Name:find("^__") then
+		if r:IsA("RemoteEvent") and wanted(r.Name) then
 			hold(r.OnClientEvent:Connect(function(...) log("remote", r.Name, show(table.pack(...))) end))
 		end
 	end
@@ -29,9 +38,6 @@ task.spawn(pcall, function()
 	for _, r in Network:GetChildren() do hookRemote(r) end
 	hold(Network.ChildAdded:Connect(function(r) log("NEW remote", r.ClassName, r.Name) hookRemote(r) end))
 	hold(RS.ChildAdded:Connect(function(c) log("NEW in ReplicatedStorage", c.ClassName, c.Name) end))
-	hold(workspace.ChildAdded:Connect(function(c)
-		if not game:GetService("Players"):GetPlayerFromCharacter(c) then log("NEW in workspace", c.ClassName, c.Name) end
-	end))
 	hold(workspace.AttributeChanged:Connect(function(a) log("workspace attr", a, show(workspace:GetAttribute(a))) end))
 	local lp = game:GetService("Players").LocalPlayer
 	hold(lp.AttributeChanged:Connect(function(a)
